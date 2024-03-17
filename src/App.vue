@@ -18,6 +18,7 @@ import chatBot from './components/ChatBot.vue';
     <div class="wrapper">
       <HelloWorld msg="You did it!" />
       <nav>
+        <RouterLink to="/">首頁</RouterLink>
         <RouterLink to="/chart">圖表</RouterLink>
         <RouterLink to="/forms">報表</RouterLink>
       </nav>
