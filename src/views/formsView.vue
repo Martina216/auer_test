@@ -27,24 +27,73 @@
         <tfoot></tfoot>
       </table>
     </div>
+    <div class="pageBtnList" v-if="!nodata">
+      <button
+        class="pageBtn pageBtncursor"
+        @click="nextPrevPage('prev')"
+        v-if="currentPage != 1"
+      >
+        ＜
+      </button>
+      <button
+        class="pageBtn"
+        v-for="page in totalPages"
+        :key="page"
+        @click="currentPage !== page ? changePage(item) : null"
+        :class="{
+          pageBtncursor: currentPage != page,
+          currPageBtn: currentPage == page,
+        }"
+      >
+        {{ page }}
+      </button>
+      <button
+        class="pageBtn pageBtncursor"
+        @click="nextPrevPage('next')"
+        v-if="currentPage != totalPages"
+      >
+        ＞
+      </button>
+    </div>
   </div>
 </template>
 
 <script>
-import { ref,onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
-
 
 export default {
   setup() {
 const data = ref("");
+const displayData = ref([]);
+const currentPage = ref(1);
+const itemsPerPage = ref(50);
+const nodata = computed(() => {
+  return displayData.value.length == 0;
+});
 
+const currentData = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return displayData.value.slice(start, end);
+});
+
+const totalPages = computed(() => {
+  return Math.ceil( displayData.value.length / this.itemsPerPage);
+});
+
+function changePage (item) {
+  currentPage.value = item;
+
+};
+
+// 獲取api
 function infoGet() {
   axios
     .get('https://www.ris.gov.tw/rs-opendata/api/v1/datastore/ODRP028/112', {})
     .then(res => {
       console.log(res.data);
-      data.value = res.data.responseData.slice(0,50);
+      data.value = res.data.responseData.slice(0,150);
     })
     .catch(error => console.log('錯誤', error));
 }
@@ -54,6 +103,13 @@ onMounted(() => {
 
 return {
   data,
+  displayData,
+  currentPage,
+  itemsPerPage,
+  nodata,
+  currentData,
+  totalPages,
   infoGet,
+  changePage,
 };}}
 </script>
